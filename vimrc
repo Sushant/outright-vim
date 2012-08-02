@@ -26,7 +26,7 @@ set t_Co=256 " Set 256 colors
 if !has("gui_running")
   autocmd VimEnter * GuiColorScheme sunburst
 else
-  colorscheme sunburst
+  colorscheme railscasts2
 endif
 
 " Don't use Ex mode, use Q for formatting
@@ -44,9 +44,9 @@ if (&t_Co > 2 || has("gui_running")) && !exists("syntax_on")
 endif
 
 " Show a vertical line/guard at column 80
-if exists('+colorcolumn')
-  set colorcolumn=120
-endif
+" if exists('+colorcolumn')
+"   set colorcolumn=120
+" endif
 
 set guifont=Bitstream\ Vera\ Sans\ Mono:h14
 set list listchars=eol:¬,tab:»·,trail:·
@@ -258,3 +258,16 @@ map <silent> <C-H> :call Html2Haml()<CR>
 unmap <Leader>te
 
 " set clipboard=unnamed
+
+" Auto-align on '=' and '=>' using Tabularize.
+inoremap <silent> = =<Esc>:call <SID>ealign()<CR>a
+function! s:ealign()
+  let p = '^.*=\s.*$'
+  if exists(':Tabularize') && getline('.') =~# '^.*=' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
+    let column = strlen(substitute(getline('.')[0:col('.')],'[^=]','','g'))
+    let position = strlen(matchstr(getline('.')[0:col('.')],'.*=\s*\zs.*'))
+    Tabularize/=/l1
+    normal! 0
+    call search(repeat('[^=]*=',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
+  endif
+endfunction
